@@ -67,7 +67,7 @@ export default function AdminEditComic() {
       audioUrl: formData.audioUrl,
       genre: formData.genre,
       chapters: formData.chapters,
-      // note: cover update logic omitted for brevity, keeps existing cover if not uploaded new
+      ...(formData.coverImage && { cover: formData.coverImage }), // Only update cover if changed
     });
     alert("Perubahan berhasil disimpan!");
     navigate("/admin");
@@ -166,8 +166,20 @@ export default function AdminEditComic() {
                   <Upload className="text-gray-400 mb-2" size={24} />
                   <span className="text-sm text-gray-300 font-medium">Klik untuk upload cover baru</span>
                   <span className="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ingin mengganti cover</span>
-                  <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
+                  <input type="file" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setFormData({...formData, coverImage: reader.result as string});
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
                 </div>
+                {formData.coverImage && formData.coverImage !== comic.cover && (
+                  <p className="text-xs text-green-400 mt-2">✓ Cover baru terpilih siap diupload.</p>
+                )}
               </div>
 
               <div>
@@ -183,7 +195,11 @@ export default function AdminEditComic() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          setFormData({...formData, audioUrl: URL.createObjectURL(file)});
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData({...formData, audioUrl: reader.result as string});
+                          };
+                          reader.readAsDataURL(file);
                         }
                       }}
                       className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 

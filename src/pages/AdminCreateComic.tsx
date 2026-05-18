@@ -39,7 +39,7 @@ export default function AdminCreateComic() {
       title: formData.title,
       subtitle: formData.subtitle,
       description: formData.description,
-      cover: "https://images.unsplash.com/photo-1542442828-287217bfb09f?q=80&w=500&auto=format&fit=crop", // Mock cover for local test
+      cover: formData.coverImage || "https://images.unsplash.com/photo-1542442828-287217bfb09f?q=80&w=500&auto=format&fit=crop", // Use uploaded cover or mock
       audioUrl: formData.audioUrl,
       genre: formData.genre,
       chapters: formData.chapters,
@@ -140,8 +140,21 @@ export default function AdminCreateComic() {
                 <div className="border-2 border-dashed border-white/10 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-primary/50 transition-colors cursor-pointer bg-dark relative">
                   <Upload className="text-gray-400 mb-2" size={24} />
                   <span className="text-sm text-gray-300 font-medium">Klik untuk upload cover</span>
-                  <span className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</span>
-                  <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
+                  {formData.coverImage ? (
+                    <span className="text-xs text-green-400 mt-1">✓ Cover terpilih</span>
+                  ) : (
+                    <span className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</span>
+                  )}
+                  <input type="file" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setFormData({...formData, coverImage: reader.result as string});
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
                 </div>
               </div>
 
@@ -158,7 +171,11 @@ export default function AdminCreateComic() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          setFormData({...formData, audioUrl: URL.createObjectURL(file)});
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData({...formData, audioUrl: reader.result as string});
+                          };
+                          reader.readAsDataURL(file);
                         }
                       }}
                       className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
@@ -177,8 +194,15 @@ export default function AdminCreateComic() {
               <Upload className="text-gray-400 mb-3" size={32} />
               <span className="text-base text-gray-300 font-medium">Pilih gambar chapter komik Anda</span>
               <span className="text-sm text-gray-500 mt-1">Bisa pilih banyak file sekaligus (Multiple)</span>
-              <input type="file" multiple className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
+              <input type="file" multiple onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  setFormData({...formData, chapterImages: e.target.files.length.toString()});
+                }
+              }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
             </div>
+            {formData.chapterImages && (
+              <p className="text-xs text-green-400 mt-2">✓ {formData.chapterImages} file gambar chapter dipilih siap diupload.</p>
+            )}
           </div>
 
           <div className="flex justify-end pt-4">
