@@ -162,11 +162,11 @@ export default function AdminEditComic() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Ganti Cover Komik</label>
-                <div className="border-2 border-dashed border-white/10 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-primary/50 transition-colors cursor-pointer bg-dark">
+                <div className="border-2 border-dashed border-white/10 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-primary/50 transition-colors cursor-pointer bg-dark relative">
                   <Upload className="text-gray-400 mb-2" size={24} />
                   <span className="text-sm text-gray-300 font-medium">Klik untuk upload cover baru</span>
                   <span className="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ingin mengganti cover</span>
-                  <input type="file" className="hidden" accept="image/*" />
+                  <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
                 </div>
               </div>
 
