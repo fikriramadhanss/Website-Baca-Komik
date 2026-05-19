@@ -13,7 +13,7 @@ export default function AdminAddChapter() {
   const [chapterNumber, setChapterNumber] = useState(
     comic ? comic.chapters + 1 : 1,
   );
-  const [chapterImages, setChapterImages] = useState<FileList | null>(null);
+  const [chapterImages, setChapterImages] = useState<string[]>([]);
 
   if (!comic) {
     return (
@@ -31,9 +31,15 @@ export default function AdminAddChapter() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (chapterNumber > comic.chapters) {
-      updateComic(comic.id, { chapters: chapterNumber });
-    }
+    const updatedChapterData = {
+      ...(comic.chapterData || {}),
+      [chapterNumber]: chapterImages
+    };
+    
+    updateComic(comic.id, { 
+      chapters: Math.max(comic.chapters, chapterNumber),
+      chapterData: updatedChapterData
+    });
     alert(`Chapter ${chapterNumber} berhasil ditambahkan ke "${comic.title}"!`);
     navigate("/admin");
   };
@@ -105,7 +111,18 @@ export default function AdminAddChapter() {
                 type="file"
                 multiple
                 required
-                onChange={(e) => setChapterImages(e.target.files)}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  Promise.all(files.map(file => {
+                    return new Promise<string>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onloadend = () => resolve(reader.result as string);
+                      reader.readAsDataURL(file);
+                    });
+                  })).then(base64Images => {
+                    setChapterImages(base64Images);
+                  });
+                }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 accept="image/*"
               />

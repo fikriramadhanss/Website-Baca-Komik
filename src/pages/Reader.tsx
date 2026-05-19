@@ -46,17 +46,24 @@ export default function Reader() {
         </button>
       </motion.div>
 
-      {/* Comic Images (Mock) */}
+      {/* Comic Images */}
       <div className="max-w-3xl mx-auto flex flex-col items-center py-8">
-        {[1, 2, 3, 4, 5].map((img) => (
-          <img 
-            key={img}
-            src={`https://images.unsplash.com/photo-1626278664285-f796b9ee7806?q=80&w=800&auto=format&fit=crop&text=Page+${img}`}
-            alt={`Page ${img}`}
-            className="w-full h-auto object-cover border-b border-white/5"
-            loading="lazy"
-          />
-        ))}
+        {comic.chapterData && comic.chapterData[Number(chapterId)] ? (
+          comic.chapterData[Number(chapterId)].map((imgBase64, index) => (
+            <img 
+              key={index}
+              src={imgBase64}
+              alt={`Page ${index + 1}`}
+              className="w-full h-auto object-cover border-b border-white/5"
+              loading="lazy"
+            />
+          ))
+        ) : (
+          <div className="text-gray-400 py-20 text-center">
+            <p className="mb-2">Gambar untuk chapter ini belum ditambahkan.</p>
+            <p className="text-sm">Admin belum mengunggah halaman untuk chapter ini.</p>
+          </div>
+        )}
       </div>
 
       {/* Reader Footer */}

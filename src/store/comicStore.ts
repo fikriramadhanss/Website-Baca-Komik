@@ -13,6 +13,7 @@ export interface Comic {
   views: string;
   audioUrl?: string;
   genre?: string[];
+  chapterData?: Record<number, string[]>;
 }
 
 interface ComicState {
@@ -53,6 +54,7 @@ export const useComicStore = create<ComicState>((set, get) => ({
         views: comic.views,
         audioUrl: comic.audio_url,
         genre: comic.genre,
+        chapterData: comic.chapter_data || {},
       }));
       
       set({ comics: mappedComics, isLoading: false });
@@ -70,6 +72,7 @@ export const useComicStore = create<ComicState>((set, get) => ({
         cover: comic.cover,
         audio_url: comic.audioUrl,
         genre: comic.genre,
+        chapter_data: comic.chapterData || {},
         chapters: comic.chapters || 1,
         status: "Ongoing",
         rating: "0.0",
@@ -115,6 +118,10 @@ export const useComicStore = create<ComicState>((set, get) => ({
       if (updatedData.audioUrl !== undefined) {
         payload.audio_url = updatedData.audioUrl;
         delete payload.audioUrl;
+      }
+      if (updatedData.chapterData !== undefined) {
+        payload.chapter_data = updatedData.chapterData;
+        delete payload.chapterData;
       }
       
       const { error } = await supabase

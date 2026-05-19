@@ -7,10 +7,10 @@ import { useComicStore } from "../store/comicStore";
 export default function AdminEditChapter() {
   const { id, chapterId } = useParams();
   const navigate = useNavigate();
-  const { comics } = useComicStore();
+  const { comics, updateComic } = useComicStore();
   const comic = comics.find((c) => c.id.toString() === id);
 
-  const [chapterImages, setChapterImages] = useState<FileList | null>(null);
+  const [chapterImages, setChapterImages] = useState<string[]>([]);
 
   if (!comic || !chapterId) {
     return (
@@ -23,7 +23,12 @@ export default function AdminEditChapter() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate updating images for this specific chapter
+    const updatedChapterData = {
+      ...(comic.chapterData || {}),
+      [chapterId as string]: chapterImages
+    };
+    
+    updateComic(comic.id, { chapterData: updatedChapterData });
     alert(`Perubahan gambar pada Chapter ${chapterId} untuk "${comic.title}" berhasil disimpan!`);
     navigate(`/admin/edit/${comic.id}`);
   };
@@ -62,7 +67,18 @@ export default function AdminEditChapter() {
                 type="file" 
                 multiple 
                 required
-                onChange={(e) => setChapterImages(e.target.files)}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  Promise.all(files.map(file => {
+                    return new Promise<string>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onloadend = () => resolve(reader.result as string);
+                      reader.readAsDataURL(file);
+                    });
+                  })).then(base64Images => {
+                    setChapterImages(base64Images);
+                  });
+                }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                 accept="image/*" 
               />
